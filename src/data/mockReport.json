@@ -1,0 +1,43 @@
+{
+  "site": "https://remedo.io",
+  "scan_date": "2026-03-11T10:30:00Z",
+  "pages_scanned": 14,
+  "summary": {
+    "pass": 42,
+    "warning": 12,
+    "error": 5
+  },
+  "issues_by_type": {
+    "meta_title": 3,
+    "meta_description": 5,
+    "missing_h1": 1,
+    "broken_links": 2,
+    "image_alt": 6
+  },
+  "pages": [
+    {
+      "url": "/",
+      "status": "warning",
+      "issues_count": 2,
+      "details": [
+        { "type": "meta_title", "status": "warning", "msg": "Title exceeds 60 characters (72)" },
+        { "type": "image_alt", "status": "error", "msg": "Hero image missing alt tag" }
+      ]
+    },
+    {
+      "url": "/about-us",
+      "status": "pass",
+      "issues_count": 0,
+      "details": []
+    },
+    {
+      "url": "/services/web-dev",
+      "status": "error",
+      "issues_count": 3,
+      "details": [
+        { "type": "broken_links", "status": "error", "msg": "Link to /contact-old is broken (404)" },
+        { "type": "missing_h1", "status": "error", "msg": "No H1 tag found on page" }
+      ]
+    }
+  ]
+}

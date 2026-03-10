@@ -1,0 +1,51 @@
+/* variables.css */
+:root {
+  --transition: 0.4s ease-out;
+}
+
+.theme-dark {
+  --bg: #020617;
+  --sidebar: #010409;
+  --workspace: radial-gradient(circle at 20% 30%, #00eaff22, transparent 40%), radial-gradient(circle at 80% 70%, #ff00ff22, transparent 40%), #030304;
+  --card: #1e293b;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.15);
+  --text: white;
+  --text-muted: white;
+  --border: #334155;
+}
+
+.theme-light {
+  --bg: #f8fafc;
+  --sidebar: #ffffff;
+  --workspace: #f1f5f9;
+  --card: #ffffff;
+  --accent: #0ea5e9;
+  --accent-glow: rgba(14, 165, 233, 0.1);
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+}
+
+.theme-gradient {
+  --bg: radial-gradient(circle at 20% 30%, #00eaff22, transparent 40%), radial-gradient(circle at 80% 70%, #ff00ff22, transparent 40%), #050510;
+  --sidebar: #010409;
+  --workspace: transparent; 
+  --card: rgba(30, 41, 59, 0.7);
+  --accent: #38bdf8;
+  --text: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  overflow: hidden;
+}
+

@@ -1,0 +1,176 @@
+/* layout.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.dashboard {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  width: 90px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  transition: width var(--transition);
+  overflow: hidden;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+/* EXPAND ON HOVER */
+
+.sidebar:hover {
+  width: 240px;
+}
+
+/* CARD ITEMS */
+
+.nav-item {
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 14px;
+
+  margin-bottom: 16px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: all var(--transition);
+
+  color: var(--text-muted);
+}
+
+/* EXPAND CARD WHEN SIDEBAR HOVER */
+
+.sidebar:hover .nav-item {
+  width: 200px;
+
+  justify-content: flex-start;
+
+  padding-left: 20px;
+
+  gap: 14px;
+}
+
+/* HOVER STYLE */
+
+.nav-item:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ACTIVE */
+
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+
+/* ICON */
+
+.nav-item img {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* TEXT LABEL */
+
+.nav-text {
+  white-space: nowrap;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity var(--transition);
+}
+
+.sidebar:hover .nav-text {
+  opacity: 1;
+  width: auto;
+}
+
+/* SHOW TEXT ONLY WHEN SIDEBAR OPEN */
+
+.nav-item {
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 16px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: all var(--transition);
+
+  color: var(--text-muted);
+
+  padding: 0; /* IMPORTANT */
+}
+
+.nav-item:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item:active {
+  transform: scale(0.96);
+}
+
+/* ICONS: No filters, original colors preserved */
+.nav-item img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+  opacity: 1; /* Fully visible */
+}
+
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--workspace);
+  overflow-y: auto;
+}
+
+.topbar {
+  height: 64px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--sidebar); /* Match topbar to sidebar for consistency */
+}
+
+/* layout.css */
+.content {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto; /* This keeps the sidebar fixed while the content scrolls */
+  height: calc(100vh - 64px); /* 64px is your topbar height */
+}

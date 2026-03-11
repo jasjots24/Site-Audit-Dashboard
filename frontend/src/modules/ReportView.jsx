@@ -1,15 +1,41 @@
 import React, { useState } from "react";
 import "../styles/report.css";
-import mockData from "../data/mockReport.json";
 
 export default function ReportView({ data }) {
   const [selectedPage, setSelectedPage] = useState(null);
 
+  // 1. Safety check must come before any logic
   if (!data) return <p className="no-data">No report data available.</p>;
+
+  // 2. Helper function for sharing
+  const copyShareLink = (id) => {
+    const shareUrl = `https://qa-dashboard.io/share/${id}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert("Unique share link copied to clipboard!");
+    });
+  };
 
   return (
     <div className="report-container">
-      {/* SUMMARY CARDS */}
+      
+      {/* 3. THE ACTIONS BAR (Moved to the top) */}
+      <div className="report-actions-bar">
+        <div className="report-info">
+          <span className="report-id-badge">ID: {data.reportId || data.id || 'TEMP_ID'}</span>
+          <span className="report-timestamp"> Scanner On - {new Date(data.scan_date).toLocaleDateString()}</span>
+        </div>
+        
+        <div className="action-buttons">
+          <button className="action-btn share" onClick={() => copyShareLink(data.reportId || data.id)}>
+            Share Report
+          </button>
+          <button className="action-btn download" onClick={() => window.print()}>
+            Export PDF
+          </button>
+        </div>
+      </div>
+
+      {/* 4. SUMMARY CARDS */}
       <div className="summary-grid">
         <div className="summary-card pass">
           <span>Passed Checks</span>
@@ -25,7 +51,7 @@ export default function ReportView({ data }) {
         </div>
       </div>
 
-      {/* DETAILS TABLE */}
+      {/* 5. DETAILS TABLE */}
       <div className="report-table-wrapper">
         <table className="report-table">
           <thead>
@@ -37,7 +63,7 @@ export default function ReportView({ data }) {
             </tr>
           </thead>
           <tbody>
-            {data.pages.map((page, index) => (
+            {data.pages && data.pages.map((page, index) => (
               <tr key={index} className="table-row">
                 <td className="url-cell">{page.url}</td>
                 <td>
@@ -57,7 +83,7 @@ export default function ReportView({ data }) {
         </table>
       </div>
 
-      {/* SIDE DRAWER FOR PAGE DETAILS */}
+      {/* 6. SIDE DRAWER FOR PAGE DETAILS */}
       {selectedPage && (
         <div className="side-drawer-overlay" onClick={() => setSelectedPage(null)}>
           <div className="side-drawer" onClick={(e) => e.stopPropagation()}>
@@ -68,7 +94,7 @@ export default function ReportView({ data }) {
             <div className="drawer-content">
               <p className="drawer-url">{selectedPage.url}</p>
               <hr className="divider" />
-              {selectedPage.details.length > 0 ? (
+              {selectedPage.details && selectedPage.details.length > 0 ? (
                 selectedPage.details.map((issue, idx) => (
                   <div key={idx} className={`issue-item ${issue.status}`}>
                     <strong>{issue.type.replace("_", " ")}</strong>

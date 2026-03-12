@@ -10,34 +10,69 @@ export default function QAScanner() {
   const [progress, setProgress] = useState(0);
   const [pagesCrawled, setPagesCrawled] = useState(0);
   const [currentTask, setCurrentTask] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [selectedTests, setSelectedTests] = useState([]);
+  const [reportData, setReportData] = useState(null);
 
   const qaTests = ["Meta Title Length", "Meta Description Length", "H1 Validation", "Image Alt Tags", "Broken Links", "Canonical Tag", "OpenGraph Tags", "Robots Meta", "Sitemap Validation"];
   const tasks = ["Fetching sitemap", "Checking Meta Titles", "Checking Meta Descriptions", "Validating H1 Tags", "Checking Image Alt Tags", "Detecting Broken Links", "Validating Canonical Tags", "Analyzing OpenGraph Tags"];
 
+  const toggleTest = (test) => {
+    setSelectedTests(prev =>
+      prev.includes(test) ? prev.filter(t => t !== test) : [...prev, test]
+    );
+  };
+  const handleRunScan = async () => {
+    if (!websiteUrl) return alert("Please enter a URL");
+
+    setScanState("scanning");
+
+    try {
+      const response = await fetch("http://localhost:5000/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: websiteUrl,
+          tests: mode === "full" ? qaTests : selectedTests
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.error) throw new Error(data.error);
+
+      setReportData(data); // THIS NOW WORKS because we defined the state
+      setScanState("completed");
+    } catch (err) {
+      console.error("Backend error:", err);
+      alert("Backend error: " + err.message);
+      setScanState("idle");
+    }
+  };
   useEffect(() => {
-  if (scanState !== "scanning") return;
+    if (scanState !== "scanning") return;
 
-  let i = 0;
+    let i = 0;
 
-  const interval = setInterval(() => {
-    setProgress((prev) => {
-      const next = prev + 8;
-      
-      if (next >= 100) {
-        clearInterval(interval);
-        setScanState("completed");
-        return 100;
-      }
-      return next;
-    });
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        const next = prev + 8;
 
-    setPagesCrawled((prev) => prev + 2);
-    setCurrentTask(tasks[i % tasks.length]);
-    i++;
-  }, 800);
+        if (next >= 100) {
+          clearInterval(interval);
+          setScanState("completed");
+          return 100;
+        }
+        return next;
+      });
 
-  return () => clearInterval(interval);
-}, [scanState]);
+      setPagesCrawled((prev) => prev + 2);
+      setCurrentTask(tasks[i % tasks.length]);
+      i++;
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [scanState]);
 
 
   return (
@@ -48,7 +83,13 @@ export default function QAScanner() {
       {/* Inputs stay visible until completed */}
       {scanState !== "completed" && (
         <>
-          <input type="text" placeholder="Enter website URL (https://example.com)" className="scanner-input" />
+          <input
+            type="text"
+            placeholder="Enter website URL (https://example.com)"
+            className="scanner-input"
+            value={websiteUrl}
+            onChange={(e) => setWebsiteUrl(e.target.value)}
+          />
           <div className="scanner-mode">
             <label>Scan Mode</label>
             <select value={mode} onChange={(e) => setMode(e.target.value)}>
@@ -57,16 +98,21 @@ export default function QAScanner() {
             </select>
           </div>
           {mode === "selected" && scanState === "idle" && (
-            <div className="qa-tests">
-              {qaTests.map((test, index) => (
-                <label key={index} className="qa-test-item">
-                  <input type="checkbox" /> {test}
-                </label>
-              ))}
-            </div>
-          )}
+  <div className="qa-tests">
+    {qaTests.map((test, index) => (
+      <label key={index} className="qa-test-item">
+        <input
+          type="checkbox"
+          checked={selectedTests.includes(test)}
+          onChange={() => toggleTest(test)}
+        />
+        {test} {/* <--- THIS WAS MISSING! */}
+      </label>
+    ))}
+  </div>
+)}
           {scanState === "idle" && (
-            <button className="scan-button" onClick={() => setScanState("scanning")}>
+            <button className="scan-button" onClick={handleRunScan}>
               Run QA Scan
             </button>
           )}
@@ -76,7 +122,7 @@ export default function QAScanner() {
       {/* PREMIUM STATUS BOARD */}
       {(scanState === "scanning" || scanState === "completed") && (
         <div className={`qa-status-board ${scanState === "completed" ? "finished" : ""}`}>
-          
+
           {/* Only show the status header/grid if scanning */}
           {scanState === "scanning" && (
             <>
@@ -104,21 +150,22 @@ export default function QAScanner() {
           )}
 
           {/* Show ReportView ONLY when completed */}
-          {scanState === "completed" && (
-            <div className="report-wrapper">
-              <ReportView data={mockReport} />
-              <button
-                className="scan-button reset-btn"
-                onClick={() => {
-                  setProgress(0);
-                  setPagesCrawled(0);
-                  setScanState("idle");
-                }}
-              >
-                Run Another Scan
-              </button>
-            </div>
-          )}
+          {scanState === "completed" && reportData && (
+  <div className="report-wrapper">
+    <ReportView data={reportData} />
+    <button
+      className="scan-button reset-btn"
+      onClick={() => {
+        setReportData(null); // Clear old data
+        setProgress(0);
+        setPagesCrawled(0);
+        setScanState("idle");
+      }}
+    >
+      Run Another Scan
+    </button>
+  </div>
+)}
         </div>
       )}
     </div>

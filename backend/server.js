@@ -1,51 +1,50 @@
 const express = require('express');
 const cors = require('cors');
-const { runQA } = require('./utils/crawler'); // Import our engine
+const { runFullSEOAudit } = require('./utils/seoEngine');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// THE SCAN ENDPOINT
 app.post('/api/scan', async (req, res) => {
-  const { url } = req.body;
+  const { url, mode } = req.body;
 
-  if (!url) {
-    return res.status(400).json({ error: "URL is required" });
+  if (!url) return res.status(400).json({ error: "URL is required" });
+
+  console.log(`🔎 Initiating ${mode || 'quick'} scan for: ${url}`);
+
+  try {
+    // 1. Run the Full SEO Audit
+    const results = await runFullSEOAudit(url);
+    
+    // 2. Format the results for ReportView
+    res.json({
+      reportId: "rep_" + Math.random().toString(36).substr(2, 9),
+      site: url,
+      scan_date: new Date().toISOString(),
+      pages_scanned: results.length,
+      summary: {
+        pass: 0, // You can count pages with 0 issues if you wish
+        warning: results.length, // All pages with issues are counted as warnings/errors
+        error: 0
+      },
+      pages: results.map(r => ({
+        url: r.url,
+        status: 'warning',
+        issues_count: r.issues.length,
+        details: r.issues.map(msg => ({ 
+          type: 'SEO_Issue', 
+          status: 'warning', 
+          msg: msg 
+        }))
+      }))
+    });
+
+  } catch (err) {
+    console.error("Scan Error:", err);
+    res.status(500).json({ error: "Scan failed: " + err.message });
   }
-
-  console.log(`🔎 Scanning started for: ${url}`);
-
-  // Execute the crawler
-  const results = await runQA(url);
-
-  if (results.error) {
-    return res.status(500).json(results);
-  }
-
-  // Send the real data back to the frontend
-  res.json({
-    reportId: "rep_" + Math.random().toString(36).substr(2, 9),
-    site: url,
-    scan_date: new Date().toISOString(),
-    pages_scanned: 1, // Start with single page for now
-    summary: {
-      pass: results.status === "pass" ? 1 : 0,
-      warning: results.status === "warning" ? 1 : 0,
-      error: results.status === "error" ? 1 : 0
-    },
-    pages: [
-      {
-        url: "/",
-        status: results.status,
-        issues_count: results.status === "pass" ? 0 : 1,
-        details: [
-          { type: "Meta Title", status: results.status, msg: results.title }
-        ]
-      }
-    ]
-  });
 });
 
 const PORT = 5000;

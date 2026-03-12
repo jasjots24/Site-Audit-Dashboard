@@ -3,7 +3,7 @@ import "../styles/report.css";
 
 export default function ReportView({ data }) {
   const [selectedPage, setSelectedPage] = useState(null);
-
+  const [reportData, setReportData] = useState(null);
   // 1. Safety check must come before any logic
   if (!data) return <p className="no-data">No report data available.</p>;
 
